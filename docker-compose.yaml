@@ -3,7 +3,12 @@ services:
     build: .
     container_name: gateway
     ports:
-      - '8888:8888'
+      - '${PAYMENT_PORT}:${PAYMENT_PORT}'
+    environment:
+      PAYMENT_HANDLER_PREFIX: ${PAYMENT_HANDLER_PREFIX}
+      PAYMENT_WEBHOOK_PREFIX: ${PAYMENT_WEBHOOK_PREFIX}
+      PAYMENT_HOST: ${PAYMENT_HOST}
+      PAYMENT_PORT: ${PAYMENT_PORT}
     depends_on:
       redis:
         condition: service_healthy
@@ -12,7 +17,7 @@ services:
     image: redis:7-alpine
     container_name: redis
     ports:
-      - "6379:6379"
+      - "6378:6379"
     volumes:
       - redis_data:/data
     healthcheck:

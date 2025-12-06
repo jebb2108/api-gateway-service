@@ -1,6 +1,6 @@
 [project]
 name = "x-api-service"
-version = "0.1.0"
+version = "0.2.0"
 description = "API Gateway"
 authors = [
     {name = "Gabriel Bouchard",email = "gabouchard2002@gmail.com"}
@@ -11,7 +11,6 @@ dependencies = [
     "fastapi (>=0.122.0,<0.123.0)",
     "uvicorn (>=0.38.0,<0.39.0)",
     "pydantic (>=2.12.5,<3.0.0)",
-    "dotenv (>=0.9.9,<0.10.0)",
     "redis (>=7.1.0,<8.0.0)",
     "httpx (>=0.28.1,<0.29.0)"
 ]

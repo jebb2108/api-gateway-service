@@ -42,6 +42,11 @@ class NewUser(BaseModel):
     lang_code: str
 
 
+class NewDueTo(BaseModel):
+    user_id: int
+    due_to: datetime
+
+
 class UserData(BaseModel):
     """
     Модель зарегистрированного пользователя (в базе данных).
