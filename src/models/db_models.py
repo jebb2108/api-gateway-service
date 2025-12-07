@@ -1,8 +1,11 @@
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import List, Optional
-from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from src.config import config
+
 
 class Language(str, Enum):
     """
@@ -28,7 +31,7 @@ class Topic(str, Enum):
     GAMES = "games"
 
 
-class NewUser(BaseModel):
+class User(BaseModel):
     """
     Модель нового пользователя (для базы данных).
     """
@@ -42,9 +45,38 @@ class NewUser(BaseModel):
     lang_code: str
 
 
-class NewDueTo(BaseModel):
-    user_id: int
-    due_to: datetime
+class Payment(BaseModel):
+    """
+    Модель платежа (для базы данных).
+    """
+
+    user_id: int = Field(..., description="User ID")
+    amount: Optional[float] = Field(
+        199.00, description="Amount of payment in rubles user agreed to pay"
+    )
+    period: Optional[str] = Field(
+        "trial", description="Period of payment", examples=["month", "year"]
+    )
+    trial: Optional[bool] = Field(True, description="If it is trial period for user")
+    is_active: Optional[bool] = Field(True, description='If this subscription is still active')
+    until: Optional[str] = Field(None, description="Sub date of expiration")
+
+    currency: Optional[str] = Field("RUB", description="Currency of payment")
+    payment_id: Optional[str] = Field(None, description="Payment ID")
+
+
+    @property
+    def until_naive(self) -> Optional[datetime]:
+        """ Возвращает untill как naive datetime для хранения в БД """
+        if self.until:
+            date_obj = datetime.fromisoformat(self.until)
+            return date_obj.replace(tzinfo=None)
+        return None
+
+    @property
+    def created_at(self) -> datetime:
+        """ Возвращает текущий timestamp для истории транзакций БД """
+        return datetime.now(tz=config.tz_info)
 
 
 class UserData(BaseModel):
@@ -63,13 +95,4 @@ class UserData(BaseModel):
     age: Optional[int]
     about: Optional[str]
     status: Optional[str]
-
-
-class NewPayment(BaseModel):
-    user_id: int
-    currency: Optional[str] = 'RUB'
-    trial: Optional[bool] = True
-    period: Optional[str] = 'month'
-    until: datetime
-
 
