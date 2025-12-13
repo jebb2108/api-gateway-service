@@ -1,7 +1,7 @@
 __all__ = [
     'User',
+    'Profile',
     'Payment',
-    'UserData',
 ]
 
-from .db_models import User, Payment, UserData, Payment
+from .db_models import User, Profile, Payment

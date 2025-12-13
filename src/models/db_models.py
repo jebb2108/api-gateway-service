@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from enum import Enum
 from typing import List, Optional
 
@@ -44,6 +44,19 @@ class User(BaseModel):
     topics: List[str]
     lang_code: str
 
+class Profile(BaseModel):
+    """
+    Модель профиля пользователя (для базы данных)
+    """
+    user_id: int = Field(..., description="User ID")
+    nickname: str = Field(..., description="Уникальный никнейм пользователя")
+    email: str = Field(..., description="Email пользователя")
+    gender: str = Field(..., description="Пол пользователя")
+    intro: str = Field(..., description="Краткая информация о пользователе")
+    birthday: date = Field(..., description="Дата рождения пользователя")
+    dating: Optional[bool] = Field(False, description="Согласие на дэйтинг")
+    status: Optional[str] = Field('rookie', description="Видимый статус пользователя")
+
 
 class Payment(BaseModel):
     """
@@ -59,7 +72,9 @@ class Payment(BaseModel):
     )
     trial: Optional[bool] = Field(True, description="If it is trial period for user")
     is_active: Optional[bool] = Field(True, description='If this subscription is still active')
-    until: Optional[str] = Field(None, description="Sub date of expiration")
+    until: Optional[datetime] = Field(
+        default=datetime.now(tz=config.tz_info) + timedelta(days=3), description="Trial period"
+    )
 
     currency: Optional[str] = Field("RUB", description="Currency of payment")
     payment_id: Optional[str] = Field(None, description="Payment ID")
@@ -67,9 +82,9 @@ class Payment(BaseModel):
 
     @property
     def until_naive(self) -> Optional[datetime]:
-        """ Возвращает untill как naive datetime для хранения в БД """
+        """ Возвращает until как naive datetime для хранения в БД """
         if self.until:
-            date_obj = datetime.fromisoformat(self.until)
+            date_obj = datetime.fromisoformat(self.until) # noqa
             return date_obj.replace(tzinfo=None)
         return None
 
@@ -77,22 +92,3 @@ class Payment(BaseModel):
     def created_at(self) -> datetime:
         """ Возвращает текущий timestamp для истории транзакций БД """
         return datetime.now(tz=config.tz_info)
-
-
-class UserData(BaseModel):
-    """
-    Модель зарегистрированного пользователя (в базе данных).
-    """
-    user_id: int
-    username: Optional[str]
-    camefrom: str
-    first_name: str
-    language: str
-    fluency: int
-    topics: List[str]
-    lang_code: str
-    nickname: Optional[str]
-    age: Optional[int]
-    about: Optional[str]
-    status: Optional[str]
-
